@@ -20,10 +20,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let birdCategory: UInt32 = 1 << 0
     let worldCategory: UInt32 = 1 << 1
     let pipeCategory: UInt32 = 1 << 2
+    let scoreCategory: UInt32 = 1 << 3
     
     var moving = SKNode()
     var canRestart = false
     var pipes = SKNode()
+    
+    var scoreLabelNode = SKLabelNode()
+    var score = NSInteger()
+    
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -114,6 +119,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var spawnThenDelay = SKAction.sequence([spawn,delay])
         var spawnThenDelayForever = SKAction.repeatActionForever(spawnThenDelay)
         self.runAction(spawnThenDelayForever)
+        
+        score = 0
+        scoreLabelNode.fontName = "Helvetica-Bold"
+        scoreLabelNode.position = CGPointMake(CGRectGetMidX(self.frame), self.frame.height/6)
+        scoreLabelNode.fontSize = 600
+        scoreLabelNode.alpha = 0.2
+        scoreLabelNode.zPosition = -30
+        scoreLabelNode.text = "\(score)"
+        self.addChild(scoreLabelNode)
     }
     func spawnPipes() {
         var pipePair = SKNode()
@@ -139,6 +153,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         pipe2.physicsBody.contactTestBitMask = birdCategory
         pipePair.addChild(pipe2)
         
+        var contactNode = SKNode()
+        contactNode.position = CGPointMake(pipe1.size.width + bird.size.width / 2, CGRectGetMidY(self.frame))
+        
+        contactNode.physicsBody = SKPhysicsBody(rectangleOfSize:CGSizeMake(pipe1.size.width, self.frame.size.height))
+        contactNode.physicsBody.dynamic = false
+        contactNode.physicsBody.categoryBitMask = scoreCategory
+        contactNode.physicsBody.contactTestBitMask = birdCategory
+        pipePair.addChild(contactNode)
+        
         pipePair.runAction(moveAndRemovePipes)
         
         pipes.addChild(pipePair)
@@ -155,6 +178,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         canRestart = false
         
         moving.speed = 1
+        score = 0
+        scoreLabelNode.text = "\(score)"
     }
     
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
@@ -192,25 +217,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBeginContact (contact: SKPhysicsContact!){
         
         if (moving.speed > 0){
-            moving.speed = 0
             
-            bird.physicsBody.collisionBitMask = worldCategory
-            var rotateBird = SKAction.rotateByAngle(0.01, duration: 0.003)
-            var stopBird = SKAction.runBlock({() in self.killBirdSpeed()})
-            var birdSequence = SKAction.sequence([rotateBird, stopBird])
-            bird.runAction(birdSequence)
+            if((contact.bodyA.categoryBitMask & scoreCategory) == scoreCategory || (contact.bodyB.categoryBitMask & scoreCategory) == scoreCategory) {
             
-            self.removeActionForKey("flash")
-            var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
-            var wait = SKAction.waitForDuration(0.05)
-            var turnBackgroundWhite = SKAction.runBlock({() in self.setBackgroundWhite()})
-            var turnBackgroundSky = SKAction.runBlock({() in self.setBackgroundSky()})
-            var sequenceOfActions = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
-            var repeatSequence = SKAction.repeatAction(sequenceOfActions, count: 4)
-            var canRestartAction = SKAction.runBlock({() in self.letItRestart()})
-            var groupOfActions = SKAction.group([repeatSequence, canRestartAction])
+                score++
+                scoreLabelNode.text = "\(score)"
+                
+            }else {
+            
+                moving.speed = 0
+            
+                bird.physicsBody.collisionBitMask = worldCategory
+                var rotateBird = SKAction.rotateByAngle(0.01, duration: 0.003)
+                var stopBird = SKAction.runBlock({() in self.killBirdSpeed()})
+                var birdSequence = SKAction.sequence([rotateBird, stopBird])
+                bird.runAction(birdSequence)
+            
+                self.removeActionForKey("flash")
+                var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
+                var wait = SKAction.waitForDuration(0.05)
+                var turnBackgroundWhite = SKAction.runBlock({() in self.setBackgroundWhite()})
+                var turnBackgroundSky = SKAction.runBlock({() in self.setBackgroundSky()})
+                var sequenceOfActions = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
+                var repeatSequence = SKAction.repeatAction(sequenceOfActions, count: 4)
+                var canRestartAction = SKAction.runBlock({() in self.letItRestart()})
+                var groupOfActions = SKAction.group([repeatSequence, canRestartAction])
             
             self.runAction(groupOfActions, withKey:"flash")
+            }
         }
     }
     func killBirdSpeed() {
