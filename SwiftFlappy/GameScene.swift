@@ -21,9 +21,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let worldCategory: UInt32 = 1 << 1
     let pipeCategory: UInt32 = 1 << 2
     
+    var moving = SKNode()
+    
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
-//        deleted "Hello World" setup that was here.
+        /* Deleted "Hello World" setup that was here. */
+        
+        self.addChild(moving)
+        
         self.physicsWorld.gravity = CGVectorMake(0.0,-5.0)
         self.physicsWorld.contactDelegate = self
         skyColor = SKColor(red: 113.0/255.0, green: 197.0/255.0, blue: 207.0/255.0, alpha: 1.0)
@@ -62,7 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             var sp = SKSpriteNode(texture: groundTexture)
             sp.position = CGPointMake(i*sp.size.width, sp.size.height / 2)
             sp.runAction(moveGroundSpritesForever)
-            self.addChild(sp)
+            moving.addChild(sp)
         
         }
         
@@ -86,7 +91,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sprite.zPosition = -20
             sprite.position = CGPointMake(i*sprite.size.width, sprite.size.height / 2 + groundTexture.size().height)
             sprite.runAction(moveSkylineSpritesForever)
-            self.addChild(sprite)
+            moving.addChild(sprite)
             
         }
         
@@ -133,14 +138,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         pipePair.runAction(moveAndRemovePipes)
         
-        self.addChild(pipePair)
+        moving.addChild(pipePair)
     
     }
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         /* Called when a touch begins */
-        
-        bird.physicsBody.velocity = CGVectorMake(0, 0)
-        bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
+        if (moving.speed > 0) {
+            bird.physicsBody.velocity = CGVectorMake(0, 0)
+            bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
+        }
     }
     
     func clamp (min: CGFloat, max: CGFloat, value:CGFloat) -> CGFloat {
@@ -164,15 +170,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func didBeginContact (contact: SKPhysicsContact!){
-        self.removeActionForKey("flash")
-        var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
-        var wait = SKAction.waitForDuration(0.05)
-        var turnBackgroundWhite = SKAction.runBlock({() in self.setBackgroundWhite()})
-        var turnBackgroundSky = SKAction.runBlock({() in self.setBackgroundSky()})
-        var sequenceOfActions = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
-        var repeatSequence = SKAction.repeatAction(sequenceOfActions, count: 4)
         
-        self.runAction(repeatSequence, withKey:"flash")
+        if (moving.speed > 0){
+            moving.speed = 0
+        
+            self.removeActionForKey("flash")
+            var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
+            var wait = SKAction.waitForDuration(0.05)
+            var turnBackgroundWhite = SKAction.runBlock({() in self.setBackgroundWhite()})
+            var turnBackgroundSky = SKAction.runBlock({() in self.setBackgroundSky()})
+            var sequenceOfActions = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
+            var repeatSequence = SKAction.repeatAction(sequenceOfActions, count: 4)
+        
+            self.runAction(repeatSequence, withKey:"flash")
+        }
     }
     func setBackgroundRed() {
         self.backgroundColor = UIColor.redColor()
