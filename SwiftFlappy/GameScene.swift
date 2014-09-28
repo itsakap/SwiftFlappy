@@ -22,12 +22,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let pipeCategory: UInt32 = 1 << 2
     
     var moving = SKNode()
+    var canRestart = false
+    var pipes = SKNode()
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
         /* Deleted "Hello World" setup that was here. */
         
         self.addChild(moving)
+        moving.addChild(pipes)
         
         self.physicsWorld.gravity = CGVectorMake(0.0,-5.0)
         self.physicsWorld.contactDelegate = self
@@ -138,14 +141,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         pipePair.runAction(moveAndRemovePipes)
         
-        moving.addChild(pipePair)
+        pipes.addChild(pipePair)
     
     }
+    func resetScene() {
+        bird.position = CGPoint(x: self.frame.size.width / 2.8, y: CGRectGetMidY(self.frame))
+        bird.physicsBody.velocity = CGVectorMake(0, 0)
+        bird.physicsBody.collisionBitMask = worldCategory | pipeCategory
+        bird.speed = 1.0
+        bird.zRotation = 0.0
+        
+        pipes.removeAllChildren()
+        canRestart = false
+        
+        moving.speed = 1
+    }
+    
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         /* Called when a touch begins */
         if (moving.speed > 0) {
             bird.physicsBody.velocity = CGVectorMake(0, 0)
             bird.physicsBody.applyImpulse(CGVectorMake(0, 8))
+        } else if (canRestart){
+            self.resetScene()
         }
     }
     
@@ -166,14 +184,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
    
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
-        bird.zRotation = self.clamp(-1,max:0.5,value: bird.physicsBody.velocity.dy * (bird.physicsBody.velocity.dy < 0 ? 0.003 : 0.001 ))
-    }
+        if (moving.speed > 0){
+            bird.zRotation = self.clamp(-1,max:0.5,value: bird.physicsBody.velocity.dy * (bird.physicsBody.velocity.dy < 0 ? 0.003 : 0.001 ))
     
+        }
+    }
     func didBeginContact (contact: SKPhysicsContact!){
         
         if (moving.speed > 0){
             moving.speed = 0
-        
+            
+            bird.physicsBody.collisionBitMask = worldCategory
+            var rotateBird = SKAction.rotateByAngle(0.01, duration: 0.003)
+            var stopBird = SKAction.runBlock({() in self.killBirdSpeed()})
+            var birdSequence = SKAction.sequence([rotateBird, stopBird])
+            bird.runAction(birdSequence)
+            
             self.removeActionForKey("flash")
             var turnBackgroundRed = SKAction.runBlock({() in self.setBackgroundRed()})
             var wait = SKAction.waitForDuration(0.05)
@@ -181,10 +207,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             var turnBackgroundSky = SKAction.runBlock({() in self.setBackgroundSky()})
             var sequenceOfActions = SKAction.sequence([turnBackgroundRed, wait, turnBackgroundWhite, wait, turnBackgroundSky])
             var repeatSequence = SKAction.repeatAction(sequenceOfActions, count: 4)
-        
-            self.runAction(repeatSequence, withKey:"flash")
+            var canRestartAction = SKAction.runBlock({() in self.letItRestart()})
+            var groupOfActions = SKAction.group([repeatSequence, canRestartAction])
+            
+            self.runAction(groupOfActions, withKey:"flash")
         }
     }
+    func killBirdSpeed() {
+        bird.speed = 0
+    }
+    func letItRestart() {
+        canRestart = true
+    }
+    
     func setBackgroundRed() {
         self.backgroundColor = UIColor.redColor()
     }
