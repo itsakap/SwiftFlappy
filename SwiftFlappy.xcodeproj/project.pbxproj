@@ -14,6 +14,7 @@
 		FCEC724D19D74AC2005BBF31 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCEC724B19D74AC2005BBF31 /* Main.storyboard */; };
 		FCEC724F19D74AC2005BBF31 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCEC724E19D74AC2005BBF31 /* Images.xcassets */; };
 		FCEC725B19D74AC2005BBF31 /* SwiftFlappyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCEC725A19D74AC2005BBF31 /* SwiftFlappyTests.swift */; };
+		FCEC726519D74E30005BBF31 /* MyResources.atlas in Resources */ = {isa = PBXBuildFile; fileRef = FCEC726419D74E30005BBF31 /* MyResources.atlas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		FCEC725419D74AC2005BBF31 /* SwiftFlappyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftFlappyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCEC725919D74AC2005BBF31 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FCEC725A19D74AC2005BBF31 /* SwiftFlappyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftFlappyTests.swift; sourceTree = "<group>"; };
+		FCEC726419D74E30005BBF31 /* MyResources.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = MyResources.atlas; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				FCEC724319D74AC2005BBF31 /* AppDelegate.swift */,
 				FCEC724519D74AC2005BBF31 /* GameScene.sks */,
 				FCEC724719D74AC2005BBF31 /* GameScene.swift */,
+				FCEC726419D74E30005BBF31 /* MyResources.atlas */,
 				FCEC724919D74AC2005BBF31 /* GameViewController.swift */,
 				FCEC724B19D74AC2005BBF31 /* Main.storyboard */,
 				FCEC724E19D74AC2005BBF31 /* Images.xcassets */,
@@ -196,6 +199,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCEC724F19D74AC2005BBF31 /* Images.xcassets in Resources */,
+				FCEC726519D74E30005BBF31 /* MyResources.atlas in Resources */,
 				FCEC724619D74AC2005BBF31 /* GameScene.sks in Resources */,
 				FCEC724D19D74AC2005BBF31 /* Main.storyboard in Resources */,
 			);
@@ -335,6 +339,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SwiftFlappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -346,6 +351,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = SwiftFlappy/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";

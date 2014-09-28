@@ -62,4 +62,8 @@ class GameViewController: UIViewController {
         // Release any cached data, images, etc that aren't in use.
     }
     
+    override func prefersStatusBarHidden() -> Bool {
+        return true
+    }
+    
 }
