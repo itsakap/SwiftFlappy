@@ -29,6 +29,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabelNode = SKLabelNode()
     var score = NSInteger()
     
+    func addTexture(imageName: String) -> SKTexture {
+        var texture = SKTexture(imageNamed: imageName)
+        texture.filteringMode = SKTextureFilteringMode.Nearest
+        return texture
+    }
     
     override func didMoveToView(view: SKView) {
         /* Setup your scene here */
@@ -42,10 +47,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         skyColor = SKColor(red: 113.0/255.0, green: 197.0/255.0, blue: 207.0/255.0, alpha: 1.0)
         self.backgroundColor = skyColor
         
-        var birdTexture1 = SKTexture(imageNamed:"Bird1")
-        birdTexture1.filteringMode = SKTextureFilteringMode.Nearest
-        var birdTexture2 = SKTexture(imageNamed:"Bird2")
-        birdTexture2.filteringMode = SKTextureFilteringMode.Nearest
+        var birdTexture1 = addTexture("Bird1")
+        var birdTexture2 = addTexture("Bird2")
         
         var animation = SKAction.animateWithTextures([birdTexture1, birdTexture2], timePerFrame: 0.2)
         var flap = SKAction.repeatActionForever(animation)
@@ -64,8 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.addChild(bird)
         
-        var groundTexture = SKTexture(imageNamed:"Ground")
-        groundTexture.filteringMode = SKTextureFilteringMode.Nearest
+        var groundTexture = addTexture("Ground")
         
         var moveGroundSprite = SKAction.moveByX(-groundTexture.size().width, y: 0, duration: NSTimeInterval(0.01 * groundTexture.size().width))
         var resetGroundSprite = SKAction.moveByX(groundTexture.size().width, y: 0, duration: 0.0)
@@ -87,8 +89,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addChild(dummy)
         
         
-        var skylineTexture = SKTexture(imageNamed:"Skyline")
-        skylineTexture.filteringMode = SKTextureFilteringMode.Nearest
+        var skylineTexture = addTexture("Skyline")
         
         var moveSkylineSprite = SKAction.moveByX(-skylineTexture.size().width, y: 0, duration: NSTimeInterval(0.1 * skylineTexture.size().width))
         var resetSkylineSprite = SKAction.moveByX(skylineTexture.size().width, y: 0, duration: 0.0)
@@ -102,11 +103,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             moving.addChild(sprite)
             
         }
-        
-        pipeTexture1 = SKTexture(imageNamed:"Pipe1")
-        pipeTexture1.filteringMode = SKTextureFilteringMode.Nearest
-        pipeTexture2 = SKTexture(imageNamed:"Pipe2")
-        pipeTexture2.filteringMode = SKTextureFilteringMode.Nearest
+
+        pipeTexture1 = addTexture("Pipe1")
+        pipeTexture2 = addTexture("Pipe2")
 
         
         var distanceToMove = CGFloat(self.frame.size.width + 2.0 * pipeTexture1.size().width)
@@ -136,22 +135,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         var height = UInt32( self.frame.height / 3)
         var y = arc4random() % height
-        
         var pipe1 = SKSpriteNode(texture: pipeTexture1)
-        pipe1.position = CGPointMake(0, CGFloat(y))
-        pipe1.physicsBody = SKPhysicsBody(rectangleOfSize: pipe1.size)
-        pipe1.physicsBody.dynamic = false
-        pipe1.physicsBody.categoryBitMask = pipeCategory
-        pipe1.physicsBody.contactTestBitMask = birdCategory
-        pipePair.addChild(pipe1)
-        
         var pipe2 = SKSpriteNode(texture: pipeTexture2)
-        pipe2.position = CGPointMake(0, CGFloat(y) + pipe1.size.height + CGFloat(verticalPipeGap))
-        pipe2.physicsBody = SKPhysicsBody(rectangleOfSize: pipe2.size)
-        pipe2.physicsBody.dynamic = false
-        pipe2.physicsBody.categoryBitMask = pipeCategory
-        pipe2.physicsBody.contactTestBitMask = birdCategory
-        pipePair.addChild(pipe2)
+        func addPipe(pipe: SKSpriteNode, yPos: CGFloat){
+            
+            pipe.position = CGPointMake(0, yPos)
+            pipe.physicsBody = SKPhysicsBody(rectangleOfSize: pipe.size)
+            pipe.physicsBody.dynamic = false
+            pipe.physicsBody.categoryBitMask = pipeCategory
+            pipe.physicsBody.contactTestBitMask = birdCategory
+            pipePair.addChild(pipe)
+        }
+        addPipe(pipe1, CGFloat(y))
+        addPipe(pipe2, CGFloat(y) + pipe1.size.height + CGFloat(verticalPipeGap))
         
         var contactNode = SKNode()
         contactNode.position = CGPointMake(pipe1.size.width + bird.size.width / 2, CGRectGetMidY(self.frame))
